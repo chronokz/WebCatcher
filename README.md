@@ -1,2 +1,2 @@
-WebCatcher
+WebCatcher [beta]
 ==========
