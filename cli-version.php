@@ -1,7 +1,7 @@
 <?php
 // $url = $_GET['url'];
 /* Configurations */
-$url = 'http://demo.yakuzi.eu/maniac/form-validation.html';
+$url = 'http://some-site.com/some-url/some-page.html';
 $allow_extentions = array('css', 'js', 'jpg', 'png', 'gif', 'svg', 'ttf', 'woff', 'eot');
 set_time_limit(180); // 3 minutes
 
