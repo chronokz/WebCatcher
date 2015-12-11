@@ -1,4 +1,4 @@
-WebCatcher [beta]
+WebCatcher [version 0.1]
 ==========
 Attention! Not recommended for use.
 The author is not liable for the use.
