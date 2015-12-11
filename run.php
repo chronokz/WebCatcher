@@ -1,7 +1,7 @@
 <?php
 /* Configurations */
-$url = 'http://some-site.com/some-url/some-page.html';
-$allow_extentions = array('css', 'js', 'jpg', 'png', 'gif', 'svg', 'ttf', 'woff', 'eot');
+$url = 'http://coderthemes.com/ubold_1.1/dark/page-starter.html';
+$allow_extentions = array('css', 'js', 'jpg', 'png', 'gif', 'svg', 'ttf', 'woff', 'woff2', 'eot');
 set_time_limit(180); // 3 minutes
 
 
@@ -12,7 +12,7 @@ if (!strpos($htmlfile, '.'))
 	$htmlfile = 'index.html';
 
 file_put_contents($htmlfile, $site);
-echo_log('The page "<b>'. $htmlfile.'</b>" was created');
+echo_log('The page "'. $htmlfile.'" was created');
 
 
 
@@ -93,6 +93,7 @@ function search_files_in_css($matches)
 		$filelink = substr($url, 0, strrpos($url,'/') + 1) . $filepath;
 	}
 
+	echo_log('url:'.$file_url);
 
 	create_folder_path($filepath);
 	$file = file_get_contents($filelink);
@@ -140,7 +141,7 @@ function search_files($matches)
 
 		if (ext($entity) == 'css')
 		{
-			preg_replace_callback('/url\(["\']?([\/\w\:\.-]+\??\#?[\&\w=\.]+)["\']?\)/im', 'search_files_in_css', $file);
+			preg_replace_callback('/url\(["\']?([\/\w\:\.-]+\??\#?[\&\w=\.\-]+)["\']?\)/im', 'search_files_in_css', $file);
 		}
 
 	}
