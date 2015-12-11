@@ -1,5 +1,4 @@
 <?php
-// $url = $_GET['url'];
 /* Configurations */
 $url = 'http://some-site.com/some-url/some-page.html';
 $allow_extentions = array('css', 'js', 'jpg', 'png', 'gif', 'svg', 'ttf', 'woff', 'eot');
@@ -7,19 +6,33 @@ set_time_limit(180); // 3 minutes
 
 
 $site = file_get_contents($url);
-$filename = ext($url, '/');
+$htmlfile = ext($url, '/');
 
-if (!strpos($filename, '.'))
-	$filename = 'index.html';
+if (!strpos($htmlfile, '.'))
+	$htmlfile = 'index.html';
 
-file_put_contents($filename, $site);
-echo_log('The page "'. $filename.'" was created');
+file_put_contents($htmlfile, $site);
+echo_log('The page "<b>'. $htmlfile.'</b>" was created');
 
 
 
 function echo_log($text)
 {
-	echo $text."\n\n";
+	if ($_SERVER['HTTP_USER_AGENT'])
+	{
+		echo $text.'<br>';
+	}
+	else
+	{
+		echo $text."\n\n";
+	}
+}
+
+function update_file($filename, $find, $replace)
+{
+	$content = file_get_contents($filename);
+	$content = str_replace($find, $replace, $content);
+	file_put_contents($filename, $content);
 }
 
 
@@ -56,15 +69,30 @@ function search_files_in_css($matches)
 {
 	global $url, $entity;
 	$file_url = $matches[1];
-	$current_folder = substr($entity, 0, strrpos($entity,'/') + 1);
 
-	$filepath = $current_folder . $matches[1];
-	if (strpos($filepath, '#'))
-		$filepath = substr($filepath, 0, strrpos($filepath,'#'));
-	if (strpos($filepath, '?'))
-		$filepath = substr($filepath, 0, strrpos($filepath,'?'));
+	if (substr($file_url, 0, 1) == '/')
+	{
+		$filepath = substr($file_url, 1);
+		if (strpos($filepath, '#'))
+			$filepath = substr($filepath, 0, strrpos($filepath,'#'));
+		if (strpos($filepath, '?'))
+			$filepath = substr($filepath, 0, strrpos($filepath,'?'));
 
-	$filelink = substr($url, 0, strrpos($url,'/') + 1) . $filepath;
+		$urlparse = parse_url($url);
+		$filelink = $urlparse['scheme'] . '://' . $urlparse['host'] . $file_url;
+		
+	}
+	else
+	{
+		$current_folder = substr($entity, 0, strrpos($entity,'/') + 1);
+		$filepath = $current_folder . $file_url;
+		if (strpos($filepath, '#'))
+			$filepath = substr($filepath, 0, strrpos($filepath,'#'));
+		if (strpos($filepath, '?'))
+			$filepath = substr($filepath, 0, strrpos($filepath,'?'));
+		$filelink = substr($url, 0, strrpos($url,'/') + 1) . $filepath;
+	}
+
 
 	create_folder_path($filepath);
 	$file = file_get_contents($filelink);
@@ -74,7 +102,7 @@ function search_files_in_css($matches)
 
 function search_files($matches)
 {
-	global $allow_extentions, $url, $entity;
+	global $allow_extentions, $url, $entity, $htmlfile;
 
 	$entity = $matches[2];
 	$extention = ext($entity);
@@ -86,6 +114,14 @@ function search_files($matches)
 			$filename = ext($entity, '/');
 			$filepath = 'vendor/'.array_shift(explode('.', $filename)).'/'.$filename;
 			$filelink = $entity;
+		}
+		else if(substr($entity, 0, 1) == '/')
+		{
+			$filepath = substr($entity, 1);
+			$urlparse = parse_url($url);
+			$filelink = $urlparse['scheme'] . '://' . $urlparse['host'] . $entity;
+
+			update_file($htmlfile, $entity, $filepath);
 		}
 		else
 		{
