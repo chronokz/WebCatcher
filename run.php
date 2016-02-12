@@ -1,6 +1,6 @@
 <?php
 /* Configurations */
-$url = 'http://sitename.com/path-to-file/filename.html';
+$url = 'http://some-domain.com/url-path/some-page.html';
 $allow_extentions = array('css', 'js', 'jpg', 'png', 'gif', 'svg', 'ttf', 'woff', 'woff2', 'eot');
 set_time_limit(180); // 3 minutes
 
@@ -90,7 +90,6 @@ function search_files_in_css($matches)
 
 			$urlparse = parse_url($url);
 			$filelink = $urlparse['scheme'] . '://' . $urlparse['host'] . $file_url;
-			
 		}
 		else
 		{
