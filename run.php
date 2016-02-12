@@ -1,11 +1,11 @@
 <?php
 /* Configurations */
-$url = 'http://coderthemes.com/ubold_1.1/dark/page-starter.html';
+$url = 'http://sitename.com/path-to-file/filename.html';
 $allow_extentions = array('css', 'js', 'jpg', 'png', 'gif', 'svg', 'ttf', 'woff', 'woff2', 'eot');
 set_time_limit(180); // 3 minutes
 
 
-$site = file_get_contents($url);
+$site = get_file($url);
 $htmlfile = ext($url, '/');
 
 if (!strpos($htmlfile, '.'))
@@ -14,7 +14,14 @@ if (!strpos($htmlfile, '.'))
 file_put_contents($htmlfile, $site);
 echo_log('The page "'. $htmlfile.'" was created');
 
-
+function get_file($url)
+{
+	$context = stream_context_create(array("http" => array("header" => "User-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36")));
+	@$contents = file_get_contents($url, false, $context);
+	if (!$contents)
+		echo_log('File "'.$url.'" not found');
+	return $contents;
+}
 
 function echo_log($text)
 {
@@ -30,7 +37,7 @@ function echo_log($text)
 
 function update_file($filename, $find, $replace)
 {
-	$content = file_get_contents($filename);
+	$content = get_file($filename);
 	$content = str_replace($find, $replace, $content);
 	file_put_contents($filename, $content);
 }
@@ -70,34 +77,39 @@ function search_files_in_css($matches)
 	global $url, $entity;
 	$file_url = $matches[1];
 
-	if (substr($file_url, 0, 1) == '/')
+	if (substr($file_url, 0, 8) != 'https://' && substr($file_url, 0, 7) != 'http://')
 	{
-		$filepath = substr($file_url, 1);
-		if (strpos($filepath, '#'))
-			$filepath = substr($filepath, 0, strrpos($filepath,'#'));
-		if (strpos($filepath, '?'))
-			$filepath = substr($filepath, 0, strrpos($filepath,'?'));
 
-		$urlparse = parse_url($url);
-		$filelink = $urlparse['scheme'] . '://' . $urlparse['host'] . $file_url;
-		
+		if (substr($file_url, 0, 1) == '/')
+		{
+			$filepath = substr($file_url, 1);
+			if (strpos($filepath, '#'))
+				$filepath = substr($filepath, 0, strrpos($filepath,'#'));
+			if (strpos($filepath, '?'))
+				$filepath = substr($filepath, 0, strrpos($filepath,'?'));
+
+			$urlparse = parse_url($url);
+			$filelink = $urlparse['scheme'] . '://' . $urlparse['host'] . $file_url;
+			
+		}
+		else
+		{
+			$current_folder = substr($entity, 0, strrpos($entity,'/') + 1);
+			$filepath = $current_folder . $file_url;
+			if (strpos($filepath, '#'))
+				$filepath = substr($filepath, 0, strrpos($filepath,'#'));
+			if (strpos($filepath, '?'))
+				$filepath = substr($filepath, 0, strrpos($filepath,'?'));
+			$filelink = substr($url, 0, strrpos($url,'/') + 1) . $filepath;
+		}
+
+		echo_log('url:'.$file_url);
+
+		create_folder_path($filepath);
+		$file = get_file($filelink);
+		file_put_contents($filepath, $file);
+
 	}
-	else
-	{
-		$current_folder = substr($entity, 0, strrpos($entity,'/') + 1);
-		$filepath = $current_folder . $file_url;
-		if (strpos($filepath, '#'))
-			$filepath = substr($filepath, 0, strrpos($filepath,'#'));
-		if (strpos($filepath, '?'))
-			$filepath = substr($filepath, 0, strrpos($filepath,'?'));
-		$filelink = substr($url, 0, strrpos($url,'/') + 1) . $filepath;
-	}
-
-	echo_log('url:'.$file_url);
-
-	create_folder_path($filepath);
-	$file = file_get_contents($filelink);
-	file_put_contents($filepath, $file);
 }
 
 
@@ -112,6 +124,13 @@ function search_files($matches)
 	{
 		if (substr($entity, 0, 8) == 'https://' || substr($entity, 0, 7) == 'http://')
 		{
+			$filename = ext($entity, '/');
+			$filepath = 'vendor/'.array_shift(explode('.', $filename)).'/'.$filename;
+			$filelink = $entity;
+		}
+		else if(substr($entity, 0, 2) == '//')
+		{
+			$entity = 'http:'.$entity;
 			$filename = ext($entity, '/');
 			$filepath = 'vendor/'.array_shift(explode('.', $filename)).'/'.$filename;
 			$filelink = $entity;
@@ -135,8 +154,10 @@ function search_files($matches)
 			$filelink = substr($url, 0, strrpos($url,'/') + 1) . $entity;
 		}
 
+		echo_log('url:'.$entity);
+
 		create_folder_path($filepath);
-		$file = file_get_contents($filelink);
+		$file = get_file($filelink);
 		file_put_contents($filepath, $file);
 
 		if (ext($entity) == 'css')
