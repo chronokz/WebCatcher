@@ -1,15 +1,18 @@
 <?php
 /* Configurations */
-$url = 'http://esterabner.com/designer/';
+$url = 'http://esterabner.com/';
 $allow_extentions = array('css', 'js', 'jpg', 'png', 'gif', 'svg', 'ttf', 'woff', 'woff2', 'eot');
 set_time_limit(180); // 3 minutes
 
-
+$urlparse = parse_url($url);
 $site = get_file($url);
 $htmlfile = ext($url, '/');
 
 if (!$htmlfile)
 	$htmlfile = ext(substr($url, 0, -1), '/');
+
+if ($htmlfile == $urlparse['host'])
+	$htmlfile = 'index.html';
 
 if (!strpos($htmlfile, '.'))
 	$htmlfile = $htmlfile.'.html';
