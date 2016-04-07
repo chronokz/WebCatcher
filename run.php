@@ -118,7 +118,17 @@ function search_files_in_css($matches)
 				$filepath = substr($filepath, 0, strrpos($filepath,'#'));
 			if (strpos($filepath, '?'))
 				$filepath = substr($filepath, 0, strrpos($filepath,'?'));
-			$filelink = substr($url, 0, strrpos($url,'/') + 1) . $filepath;
+			
+			if (substr($entity, 0, 1) == '/')
+			{
+				$urlparse = parse_url($url);
+				$filelink = $urlparse['scheme'] . '://' . $urlparse['host'] . $filepath;
+			}
+			else
+			{
+				$filelink = substr($url, 0, strrpos($url,'/') + 1) . $filepath;
+			}
+
 		}
 
 		echo_log('url:'.$file_url);
