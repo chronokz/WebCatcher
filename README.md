@@ -1,6 +1,7 @@
-WebCatcher [version 0.1]
+WebCatcher [version 1.0]
 ==========
-Attention! Not recommended for use.
+Downloads all site content, keeping the entire structure.
+*Attention! Not recommended for use.*
 The author is not liable for the use.
 
 * Just set your url into **$url = 'http://some-site.com/some-url/some-page.html';**
