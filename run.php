@@ -124,7 +124,7 @@ function search_files_in_css($matches)
 			if (substr($entity, 0, 1) == '/')
 			{
 				$urlparse = parse_url($url);
-				$filelink = $urlparse['scheme'] . '://' . $urlparse['host'] . $filepath;
+				$filelink = $urlparse['scheme'] . '://' . $urlparse['host'] . '/' . $filepath;
 			}
 			else
 			{
