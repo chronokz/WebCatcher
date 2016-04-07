@@ -118,6 +118,8 @@ function search_files_in_css($matches)
 				$filepath = substr($filepath, 0, strrpos($filepath,'#'));
 			if (strpos($filepath, '?'))
 				$filepath = substr($filepath, 0, strrpos($filepath,'?'));
+			if (substr($filepath, 0, 1) == '/')
+				$filepath = substr($filepath, 1);
 			
 			if (substr($entity, 0, 1) == '/')
 			{
