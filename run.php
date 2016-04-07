@@ -1,6 +1,6 @@
 <?php
 /* Configurations */
-$url = 'http://some-domain.com/url-path/some-page.html';
+$url = 'http://esterabner.com/designer/';
 $allow_extentions = array('css', 'js', 'jpg', 'png', 'gif', 'svg', 'ttf', 'woff', 'woff2', 'eot');
 set_time_limit(180); // 3 minutes
 
@@ -14,12 +14,15 @@ if (!$htmlfile)
 if (!strpos($htmlfile, '.'))
 	$htmlfile = $htmlfile.'.html';
 
+
 /*
-Maybe I was wrong and it better way for naming file ;)
+Maybe I was wrong and it better way to naming file ;)
 if (!strpos($htmlfile, '.'))
 	$htmlfile = 'index.html';
 */
 
+
+$site = remove_stats($site);
 file_put_contents($htmlfile, $site);
 echo_log('The page "'. $htmlfile.'" was created');
 
@@ -77,6 +80,8 @@ function create_folder_path($file_path)
 
 function ext($filename, $delimter = '.')
 {
+	// if (strpos($filename, $delimter) === false)
+		// return null;
 	return array_pop(explode($delimter, $filename));
 }
 
@@ -84,13 +89,22 @@ function ext($filename, $delimter = '.')
 function search_files_in_css($matches)
 {
 	global $url, $entity;
-	$file_url = $matches[1];
+	$file_url = $matches[1];	
 
 	if (substr($file_url, 0, 8) != 'https://' && substr($file_url, 0, 7) != 'http://')
 	{
-
 		if (substr($file_url, 0, 1) == '/')
 		{
+			// Changes in css file
+			$css_file = $entity; 
+			if (substr($css_file, 0, 1) == '/')
+			{
+				$css_file = substr($css_file, 1);
+				$css_text = file_get_contents($css_file);
+				$css_text = str_replace($file_url, substr($file_url, 1), $css_text);
+				file_put_contents($css_file, $css_text);
+			}
+
 			$filepath = substr($file_url, 1);
 			if (strpos($filepath, '#'))
 				$filepath = substr($filepath, 0, strrpos($filepath,'#'));
@@ -103,7 +117,7 @@ function search_files_in_css($matches)
 		else
 		{
 			$current_folder = substr($entity, 0, strrpos($entity,'/') + 1);
-			
+
 			while(substr($file_url, 0, 3) == '../')
 			{
 				$file_url = substr($file_url, 3);
@@ -112,7 +126,7 @@ function search_files_in_css($matches)
 
 				$current_folder = substr($current_folder, 0, strrpos($current_folder,'/') + 1);
 			}
-			
+
 			$filepath = $current_folder . $file_url;
 			if (strpos($filepath, '#'))
 				$filepath = substr($filepath, 0, strrpos($filepath,'#'));
@@ -130,14 +144,14 @@ function search_files_in_css($matches)
 			{
 				$filelink = substr($url, 0, strrpos($url,'/') + 1) . $filepath;
 			}
-
 		}
 
-		echo_log('url:'.$file_url);
+		echo_log('[from] '.$filelink);
+		echo_log('	[to] '.$filepath);
 
 		create_folder_path($filepath);
-		$file = get_file($filelink);
-		file_put_contents($filepath, $file);
+		$filelink = get_file($filelink);
+		file_put_contents($filepath, $filelink);
 
 	}
 }
@@ -184,7 +198,8 @@ function search_files($matches)
 			$filelink = substr($url, 0, strrpos($url,'/') + 1) . $entity;
 		}
 
-		echo_log('url:'.$entity);
+		echo_log('[from] '.$filelink);
+		echo_log('	[to] '.$filepath);
 
 		create_folder_path($filepath);
 		$file = get_file($filelink);
@@ -196,6 +211,18 @@ function search_files($matches)
 		}
 
 	}
+}
+
+function remove_stats($site)
+{
+	// Yandex.Metrika
+	$stats_begin = '<!-- Yandex.Metrika counter -->';
+	$stats_end = '<!-- /Yandex.Metrika counter -->';
+	$stats_begin_pos = strpos($site, $stats_begin);
+	$stats_end_pos = strpos($site, $stats_end);
+	$stats_len = $stats_end_pos - $stats_begin_pos;
+	$site = substr_replace($site, '', $stats_begin_pos, $stats_len);
+	return $site;
 }
 
 preg_replace_callback('/(href|src)=["\']?([\/\w\:\.-]+)["\']?/im', 'search_files', $site);
