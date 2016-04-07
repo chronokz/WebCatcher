@@ -8,8 +8,17 @@ set_time_limit(180); // 3 minutes
 $site = get_file($url);
 $htmlfile = ext($url, '/');
 
+if (!$htmlfile)
+	$htmlfile = ext(substr($url, 0, -1), '/');
+
+if (!strpos($htmlfile, '.'))
+	$htmlfile = $htmlfile.'.html';
+
+/*
+Maybe I was wrong and it better way for naming file ;)
 if (!strpos($htmlfile, '.'))
 	$htmlfile = 'index.html';
+*/
 
 file_put_contents($htmlfile, $site);
 echo_log('The page "'. $htmlfile.'" was created');
@@ -94,6 +103,16 @@ function search_files_in_css($matches)
 		else
 		{
 			$current_folder = substr($entity, 0, strrpos($entity,'/') + 1);
+			
+			while(substr($file_url, 0, 3) == '../')
+			{
+				$file_url = substr($file_url, 3);
+				if (substr($current_folder, -1) == '/')
+					$current_folder = substr($current_folder, 0, -1);
+
+				$current_folder = substr($current_folder, 0, strrpos($current_folder,'/') + 1);
+			}
+			
 			$filepath = $current_folder . $file_url;
 			if (strpos($filepath, '#'))
 				$filepath = substr($filepath, 0, strrpos($filepath,'#'));
