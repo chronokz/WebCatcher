@@ -95,21 +95,34 @@ function search_files_in_css($matches)
 	{
 		if (substr($file_url, 0, 1) == '/')
 		{
-			// Changes in css file
-			$css_file = $entity; 
-			if (substr($css_file, 0, 1) == '/')
-			{
-				$css_file = substr($css_file, 1);
-				$css_text = file_get_contents($css_file);
-				$css_text = str_replace($file_url, substr($file_url, 1), $css_text);
-				file_put_contents($css_file, $css_text);
-			}
-
 			$filepath = substr($file_url, 1);
 			if (strpos($filepath, '#'))
 				$filepath = substr($filepath, 0, strrpos($filepath,'#'));
 			if (strpos($filepath, '?'))
 				$filepath = substr($filepath, 0, strrpos($filepath,'?'));
+
+			// Changes in css file
+			$css_file = $entity; 
+			if (substr($css_file, 0, 1) == '/')
+			{
+				$css_file = substr($css_file, 1);
+			}
+
+			$root_way = substr($css_file, 0, strrpos($css_file,'/'));
+			$dots_way = '';
+			while(strpos($file_url, $root_way) === false)
+			{
+				$root_way = substr($root_way, 0, strrpos($root_way,'/'));
+				$dots_way .= '../';
+			}
+			$css_path = str_replace($root_way, $dots_way, $filepath);
+
+			$css_text = file_get_contents($css_file);
+			$css_text = str_replace($file_url, $css_path, $css_text);
+
+			file_put_contents($css_file, $css_text);
+			// !Changes in css file
+
 
 			$urlparse = parse_url($url);
 			$filelink = $urlparse['scheme'] . '://' . $urlparse['host'] . $file_url;
