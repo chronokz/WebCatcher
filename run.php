@@ -1,6 +1,6 @@
 <?php
 /* Configurations */
-$url = 'http://esterabner.com/';
+$url = 'http://some-site.com/some-url/some-page.html';
 $allow_extentions = array('css', 'js', 'jpg', 'png', 'gif', 'svg', 'ttf', 'woff', 'woff2', 'eot');
 set_time_limit(180); // 3 minutes
 
@@ -92,7 +92,8 @@ function ext($filename, $delimter = '.')
 function search_files_in_css($matches)
 {
 	global $url, $entity;
-	$file_url = $matches[1];	
+	$file_url = $matches[1];
+
 
 	if (substr($file_url, 0, 8) != 'https://' && substr($file_url, 0, 7) != 'http://')
 	{
@@ -136,12 +137,15 @@ function search_files_in_css($matches)
 
 			while(substr($file_url, 0, 3) == '../')
 			{
+				
 				$file_url = substr($file_url, 3);
 				if (substr($current_folder, -1) == '/')
 					$current_folder = substr($current_folder, 0, -1);
 
-				$current_folder = substr($current_folder, 0, strrpos($current_folder,'/') + 1);
+				$current_folder = substr($current_folder, 0, strrpos($current_folder,'/'));
 			}
+
+
 
 			$filepath = $current_folder . $file_url;
 			if (strpos($filepath, '#'))
