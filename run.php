@@ -146,8 +146,7 @@ function search_files_in_css($matches)
 			}
 
 
-
-			$filepath = $current_folder . $file_url;
+			$filepath = $current_folder . '/' . $file_url;
 			if (strpos($filepath, '#'))
 				$filepath = substr($filepath, 0, strrpos($filepath,'#'));
 			if (strpos($filepath, '?'))
