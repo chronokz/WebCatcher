@@ -1,8 +1,15 @@
 <?php
 /* Configurations */
 $url = 'http://some-site.com/some-url/some-page.html';
+
 $allow_extentions = array('css', 'js', 'jpg', 'png', 'gif', 'svg', 'ttf', 'woff', 'woff2', 'eot');
 set_time_limit(180); // 3 minutes
+
+// web: run.php?page-address, cli: php run.php?page-address
+if ($_SERVER['HTTP_USER_AGENT'] && $_SERVER['QUERY_STRING'])
+	$url = $_SERVER['QUERY_STRING'];
+elseif(!$_SERVER['HTTP_USER_AGENT'] && isset($argv[1]))
+	$url = $argv[1];
 
 $urlparse = parse_url($url);
 $site = get_file($url);
