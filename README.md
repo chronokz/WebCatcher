@@ -1,4 +1,4 @@
-WebCatcher [version 1.0]
+WebCatcher [version 2.0]
 ==========
 Downloads all site content, keeping the entire structure.
 
