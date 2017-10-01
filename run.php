@@ -85,7 +85,8 @@ function ext($filename, $delimter = '.')
 {
 	// if (strpos($filename, $delimter) === false)
 		// return null;
-	return array_pop(explode($delimter, $filename));
+	$parts = explode($delimter, $filename);
+	return array_pop($parts);
 }
 
 
@@ -188,14 +189,16 @@ function search_files($matches)
 		if (substr($entity, 0, 8) == 'https://' || substr($entity, 0, 7) == 'http://')
 		{
 			$filename = ext($entity, '/');
-			$filepath = 'vendor/'.array_shift(explode('.', $filename)).'/'.$filename;
+			$filepart = explode('.', $filename);
+			$filepath = 'vendor/'.array_shift($filepart).'/'.$filename;
 			$filelink = $entity;
 		}
 		else if(substr($entity, 0, 2) == '//')
 		{
 			$entity = 'http:'.$entity;
 			$filename = ext($entity, '/');
-			$filepath = 'vendor/'.array_shift(explode('.', $filename)).'/'.$filename;
+			$filepart = explode('.', $filename);
+			$filepath = 'vendor/'.array_shift($filepart).'/'.$filename;
 			$filelink = $entity;
 		}
 		else if(substr($entity, 0, 1) == '/')
